@@ -1,12 +1,16 @@
 import { Order } from "orderConstant";
 import querystringify from "querystringify";
 
-export function getServiceType(accountId: number) {
+export function getServiceType() {
   let responseData;
+  const accountId = 26881;
   let url = `http://cod.callcourier.com.pk/API/CallCourier/GetServiceType/${accountId}`;
   fetch(url)
     .then((resp) => resp.json())
-    .then((data) => (responseData = data))
+    .then((data) => {
+      console.log(data);
+      responseData = data;
+    })
     .catch(console.log);
 
   return responseData;

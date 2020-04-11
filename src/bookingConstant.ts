@@ -35,6 +35,39 @@ export interface CallCouriorBookingResposne {
     Count: number;
 }
 
+export interface CityListByServiceType {
+    CityID: number;
+    CityName: string;
+    CityShortDesc: string;
+    StationID: number;
+    StationDesc: string;
+    StationShortDesc: string;
+    BranchID: number;
+    BranchName: string;
+    HubID: number;
+    HubDesc: string;
+    ZoneID: number;
+    ZoneDesc: string;
+    RegionID: number;
+    RegionDesc: string;
+    ProvinceID: number;
+    ProvinceName: string;
+    ServiceAreaTypeID?: any;
+    ServiceAreaTypeDesc?: any;
+    EmployeeID?: any;
+    EmployeeName?: any;
+}
+
+
+export interface ServiceType {
+    ServiceTypeID: number;
+    ServiceType1: string;
+    ServiceAreaCriteriaID?: any;
+    CalculationParameter?: any;
+    IsCOD: boolean;
+    ServiceTypeNatureID: number;
+}
+
 export let defaultCallCouriorBooking = {
     "http://cod.callcourier.com.pk/api/CallCourier/SaveBooking?loginId":"ISB-03539",
     "ConsigneeName":"Test Random",

@@ -309,7 +309,7 @@ export interface Order {
   token: string;
   gateway: string;
   test: boolean;
-  total_price: string;
+  total_price: number;
   subtotal_price: string;
   total_weight: number;
   total_tax: string;
