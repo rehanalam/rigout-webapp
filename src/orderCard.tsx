@@ -1,47 +1,69 @@
 import * as React from 'react';
 import { Order } from 'orderConstant';
-import { CityListByServiceType } from 'bookingConstant';
-import { CitiesList } from './citiesList';
-import { BookOrderAction } from './bookOrderAction';
+import { CityListByServiceType } from './bookingConstant';
+// import { BookOrderAction } from './bookOrderAction';
+import { OrderBooking } from './orderBooking';
 
 interface OrderCardProp {
     order: Order;
-    cityListByServiceType: CityListByServiceType[];
+    cityListByServiceType: CityListByServiceType;
 }
 interface OrderCardState {
     tagValue: string;
+    comment?: string;
+    fullName: string;
+    email: string;
+    completeAddress: string;
+    city: string;
+    phoneNumber: string;
+    totalPrice: number;
 }
 
-export class OrderCard extends React.Component<OrderCardProp, OrderCardState>{
+export class OrderCard extends React.Component<OrderCardProp, Partial<OrderCardState>>{
     state: OrderCardState;
     constructor(props: OrderCardProp) {
         super(props);
+        let { order } = this.props;
+        this.handleChange = this.handleChange.bind(this);
+
         this.state = {
-            tagValue: 'in-progress'
+            tagValue: order.tags,
+            comment: order.note,
+            fullName: `${order.customer.first_name} ${order.customer.last_name || ''}`,
+            email: order.customer.email,
+            completeAddress: `${order.shipping_address.address1} ${order.shipping_address.address2 || ''} ${order.shipping_address.province || ''} ${order.shipping_address.zip || ''} ${order.shipping_address.country}`,
+            city: order.shipping_address.city,
+            phoneNumber: this.validatePhoneNumber(),
+            totalPrice: order.total_price * 165,
         }
     }
 
-    getSelectedCityId = () => {
-        return this.props.cityListByServiceType.find(c => {
-            return c.CityName == this.props.order.shipping_address.city.toUpperCase();
+    validatePhoneNumber() {
+        let number = this.props.order.shipping_address.phone;
+
+        if (!number) {
+            console.log(`Phone number of ${this.props.order.order_number} is not available.`);
+            return 'NA';
+        }
+
+        if (number.startsWith('+')) {
+            let a = number.substr(3);
+            return '0' + a.trim().replace(/\s/g, '').replace(/^0+/, '');
+        }
+        else if (number.startsWith('9')) {
+            return '0' + number.substr(2).trim().replace(/\s/g, '').replace(/^0+/, '');
+        }
+        else {
+            return '0' + number.trim().replace(/\s/g, '').replace(/^0+/, '');
+        }
+    }
+
+    handleChange = (e) => {
+        const value = e.target.name === 'isGoing' ? e.target.checked : e.target.value;
+        const name = e.target.name;
+        this.setState({
+            [name]: value
         });
-    }
-    componentDidMount() {
-
-    }
-
-    handleChange = (event) => {
-        this.setState({ tagValue: event.target.value });
-    }
-
-    renderOrderCard() {
-        let { order } = this.props;
-        return (
-            <div className="order-card">
-                <div className="header">{order.number}</div>
-                <div className="body"></div>
-            </div>
-        );
     }
 
     saveOrderConfirmation = () => {
@@ -53,8 +75,7 @@ export class OrderCard extends React.Component<OrderCardProp, OrderCardState>{
     }
 
     render() {
-        let { order, cityListByServiceType } = this.props;
-        let selectedCity = this.getSelectedCityId();
+        let { order } = this.props;
         let orderUrl = `https://stacked-store.myshopify.com/admin/orders/${order.id}`;
         return (
             <div className="order-card-wrapper">
@@ -62,7 +83,7 @@ export class OrderCard extends React.Component<OrderCardProp, OrderCardState>{
                     <div className="header">
                         <h1>
                             <a target="_blank"
-                                href={orderUrl}>#{order.number}</a>
+                                href={orderUrl}>#{order.order_number}</a>
 
                             <span className="badge badge-info">{order.fulfillment_status ? order.fulfillment_status : 'unfulfill'}</span>
                             <span className="badge badge-light">{order.tags ? order.tags : this.state.tagValue}</span>
@@ -70,8 +91,8 @@ export class OrderCard extends React.Component<OrderCardProp, OrderCardState>{
                         <p>Date: {order.created_at}</p>
                     </div>
                     <div className="body">
-                        <div className="order-confirmation">
-                            <form>
+                        <div className="form-row order-confirmation align-items-center">
+                            <form className="col-4">
                                 <div className="form-row">
                                     <div className="form-group  col-md-6">
                                         <label>Order Confirmation status</label>
@@ -87,7 +108,7 @@ export class OrderCard extends React.Component<OrderCardProp, OrderCardState>{
                                 </div>
 
                             </form>
-                            <div className="col-md-6">
+                            <div className="col-4">
                                 <button className="btn btn-default" onClick={this.saveOrderConfirmation}>Save</button>
                             </div>
                         </div>
@@ -101,42 +122,48 @@ export class OrderCard extends React.Component<OrderCardProp, OrderCardState>{
                             </ul>
                         </div>
                         <div className="customer-details">
-                            <h3>Customers Details:</h3>
+                            <h3>Consignee Details:</h3>
                             <form>
                                 <div className="form-row">
                                     <div className="form-group  col-md-6">
                                         <label>Name</label>
-                                        <input className="form-control" value={order.customer.first_name + ' ' + order.customer.last_name} />
+                                        <input type="text" className="form-control" name="fullName" value={this.state.fullName} onChange={this.handleChange} />
                                         {/* <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small> */}
                                     </div>
                                     <div className="form-group  col-md-6">
                                         <label>Phone Number</label>
-                                        <input className="form-control" value={order.shipping_address.phone} />
+                                        <input type="tel" className="form-control" name="phoneNumber" value={this.state.phoneNumber} onChange={this.handleChange} />
                                     </div>
                                 </div>
                                 <div className="form-row">
                                     <div className="form-group  col-md-12">
                                         <label>Address</label>
-                                        <textarea className="form-control" value={order.shipping_address.address1 + order.shipping_address.address2} />
+                                        <textarea className="form-control" name="completeAddress" value={this.state.completeAddress} onChange={this.handleChange} />
                                     </div>
                                 </div>
                                 <div className="form-row">
                                     <div className="form-group  col-md-4">
-                                        <label>Destination City <small>{order.shipping_address.city}</small></label>
-                                        <CitiesList cityListByServiceType={cityListByServiceType} selectedCity={selectedCity?.CityID} />
+                                        <label>Destination City <small>{this.state.city}</small></label>
+                                        {/* <CitiesList cityListByServiceType={cityListByServiceType} selectedCity={this.state.selectedCity} onChange={this.handleReactSelectChange} /> */}
+                                        <input className="form-control" name="city" value={this.state.city} onChange={this.handleChange} />
                                     </div>
                                     <div className="form-group  col-md-4">
-                                        <label>Price</label>
-                                        <input className="form-control" value={order.total_price * 165} />
+                                        <label>Price <small>({this.state.totalPrice} <strong>PKR</strong> = {this.state.totalPrice / 165} <strong>USD</strong></small>)</label>
+                                        <input className="form-control" name="totalPrice" value={this.state.totalPrice} onChange={this.handleChange} />
                                     </div>
                                     <div className="form-group  col-md-4">
                                         <label>Email</label>
-                                        <input className="form-control" value={order.customer.email} />
+                                        <input type="email" className="form-control" name="email" value={this.state.email} onChange={this.handleChange} />
                                     </div>
                                 </div>
                             </form>
-                            <BookOrderAction order={order} />
+                            
                         </div>
+                        <OrderBooking {...this.state}
+                                orderItems={order.line_items}
+                                orderNumber={order.order_number}
+                                cityListByServiceType={this.props.cityListByServiceType}
+                                courierService='tcs' />
                     </div>
                 </div>
             </div>
