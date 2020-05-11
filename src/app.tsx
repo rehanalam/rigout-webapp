@@ -1,9 +1,11 @@
 import * as React from "react";
 import { Order } from "orderConstant";
-import { CityListByServiceType, CallCourierCity, TcsCity } from "bookingConstant";
+import { CityListByServiceType } from "bookingConstant";
 import { OrderCard } from "./orderCard";
 // import { getServiceType } from "./apiClient";
 import './assets/style/index.scss';
+import { FulfilledOrderCard } from "./fulfilledOrderCard";
+
 
 export interface OrdersResponse {
   orders: Order[];
@@ -15,7 +17,6 @@ interface AppState {
 };
 
 interface AppProps {
-
 };
 
 export class App extends React.Component<AppProps, AppState> {
@@ -61,9 +62,15 @@ export class App extends React.Component<AppProps, AppState> {
   render() {
     return (<div>
       {this.state && this.state.orders.map((order: Order) =>
-        <OrderCard key={order.id}
-          order={order}
-          cityListByServiceType={this.state.cityListByServiceType} />
+        order.fulfillment_status === 'fulfilled' ?
+          <FulfilledOrderCard
+            orderNumber={order.order_number}
+            orderId={order.id}
+            fulfillmentStatus={order.fulfillment_status}
+            fulfillments={order.fulfillments} /> :
+          <OrderCard key={order.id}
+            order={order}
+            cityListByServiceType={this.state.cityListByServiceType} />
       )}
     </div>);
   }

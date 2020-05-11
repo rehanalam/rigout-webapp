@@ -25,16 +25,16 @@ export class OrderCard extends React.Component<OrderCardProp, Partial<OrderCardS
         super(props);
         let { order } = this.props;
         this.handleChange = this.handleChange.bind(this);
-
+      
         this.state = {
             tagValue: order.tags,
             comment: order.note,
-            fullName: `${order.customer.first_name} ${order.customer.last_name || ''}`,
-            email: order.customer.email,
+            fullName: order.customer && `${order.customer.first_name || ''} ${order.customer.last_name || ''}`,
+            email: order.customer && order.customer.email,
             completeAddress: `${order.shipping_address.address1} ${order.shipping_address.address2 || ''} ${order.shipping_address.province || ''} ${order.shipping_address.zip || ''} ${order.shipping_address.country}`,
             city: order.shipping_address.city,
             phoneNumber: this.validatePhoneNumber(),
-            totalPrice: order.total_price * 165,
+            totalPrice: order.total_price * 160,
         }
     }
 
@@ -96,7 +96,10 @@ export class OrderCard extends React.Component<OrderCardProp, Partial<OrderCardS
                                 <div className="form-row">
                                     <div className="form-group  col-md-6">
                                         <label>Order Confirmation status</label>
-                                        <select className="form-control" value={this.state.tagValue} onChange={this.handleChange}>
+                                        <select className="form-control" 
+                                                name='tagValue'
+                                                value={this.state.tagValue} 
+                                                onChange={this.handleChange}>
                                             <option value="in-progress">In Progress</option>
                                             <option value="confirmed">Confirmed</option>
                                             <option value="not-responding">Not Responding</option>
@@ -148,8 +151,15 @@ export class OrderCard extends React.Component<OrderCardProp, Partial<OrderCardS
                                         <input className="form-control" name="city" value={this.state.city} onChange={this.handleChange} />
                                     </div>
                                     <div className="form-group  col-md-4">
-                                        <label>Price <small>({this.state.totalPrice} <strong>PKR</strong> = {this.state.totalPrice / 165} <strong>USD</strong></small>)</label>
+                                        <label>
+                                            Price <small>
+                                                 ({this.state.totalPrice} <strong>PKR</strong> = {this.state.totalPrice / 165} <strong>USD</strong>)
+                                            </small>
+                                         </label>
                                         <input className="form-control" name="totalPrice" value={this.state.totalPrice} onChange={this.handleChange} />
+                                        <small className="form-text text-muted">
+                                            <strong>Gateway</strong>: {order.gateway}
+                                        </small>
                                     </div>
                                     <div className="form-group  col-md-4">
                                         <label>Email</label>
@@ -157,13 +167,13 @@ export class OrderCard extends React.Component<OrderCardProp, Partial<OrderCardS
                                     </div>
                                 </div>
                             </form>
-                            
+
                         </div>
                         <OrderBooking {...this.state}
-                                orderItems={order.line_items}
-                                orderNumber={order.order_number}
-                                cityListByServiceType={this.props.cityListByServiceType}
-                                courierService='tcs' />
+                            orderItems={order.line_items}
+                            orderNumber={order.order_number}
+                            cityListByServiceType={this.props.cityListByServiceType}
+                            courierService='tcs' />
                     </div>
                 </div>
             </div>

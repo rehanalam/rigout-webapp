@@ -89,7 +89,7 @@ export class BookOrderAction extends React.Component<BookOrderActionProps, BookO
             weight: 1,
             pieces: 1,
             codAmount: totalPrice,
-            customerReferenceNo: `test-#${orderNumber}`,
+            customerReferenceNo: `#${orderNumber}`,
             productDetails: orderItems.length > 1 ? `#${orderNumber}` : orderItems[0].name,
             remarks: "Call Before Delivery",
             ...tcsBasicSettings
