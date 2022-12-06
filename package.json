@@ -6,7 +6,7 @@
   "dependencies": {
     "js-base64": "^2.5.2",
     "parcel-bundler": "^1.12.4",
-    "qs": "^6.9.3",
+    "qs": "^6.9.7",
     "querystringify": "^2.1.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
